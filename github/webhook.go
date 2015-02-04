@@ -7,6 +7,7 @@ import (
 
 type WebhookPayload struct {
 	Ref        string `json:"ref"`
+	Created    bool   `json:"created"`
 	Repository struct {
 		FullName string `json:"full_name"`
 	} `json:"repository"`
