@@ -6,24 +6,24 @@ import (
 	"net/http"
 )
 
-type JenkinsApi struct {
+type Api struct {
 	Username string
 	Password string
-	URL      string // e.g., https://deploy.jenkins.com
+	BaseURL  string // e.g., https://deploy.jenkins.com
 
 	Client *http.Client
 }
 
-func NewJenkinsApi(username, password, url string) *JenkinsApi {
-	return &JenkinsApi{
+func NewApi(username, password, baseUrl string) *Api {
+	return &Api{
 		Username: username,
 		Password: password,
-		URL:      url,
+		BaseURL:  baseUrl,
 		Client:   &http.Client{},
 	}
 }
 
-type JenkinsApiJobListResponse struct {
+type ApiJobListResponse struct {
 	Jobs []struct {
 		Name     string `json:"name"`
 		Property []struct {
@@ -37,16 +37,16 @@ type JenkinsApiJobListResponse struct {
 	}
 }
 
-func (j *JenkinsApi) BuildURL(path string) string {
-	return j.URL + path
+func (j *Api) BuildURL(path string) string {
+	return j.BaseURL + path
 }
 
-func (j *JenkinsApi) Do(req *http.Request) (*http.Response, error) {
+func (j *Api) Do(req *http.Request) (*http.Response, error) {
 	req.SetBasicAuth(j.Username, j.Password)
 	return j.Client.Do(req)
 }
 
-func (j *JenkinsApi) Get(v interface{}, path string) error {
+func (j *Api) Get(v interface{}, path string) error {
 	req, err := http.NewRequest("GET", j.BuildURL(path), nil)
 	if err != nil {
 		return err
@@ -55,7 +55,7 @@ func (j *JenkinsApi) Get(v interface{}, path string) error {
 	return j.doRequest(v, req)
 }
 
-func (j *JenkinsApi) Post(v interface{}, path string, body io.Reader) error {
+func (j *Api) Post(v interface{}, path string, body io.Reader) error {
 	req, err := http.NewRequest("POST", j.BuildURL(path), body)
 	if err != nil {
 		return err
@@ -64,7 +64,7 @@ func (j *JenkinsApi) Post(v interface{}, path string, body io.Reader) error {
 	return j.doRequest(v, req)
 }
 
-func (j *JenkinsApi) doRequest(v interface{}, req *http.Request) error {
+func (j *Api) doRequest(v interface{}, req *http.Request) error {
 	resp, err := j.Do(req)
 	if err != nil {
 		return err
@@ -74,8 +74,8 @@ func (j *JenkinsApi) doRequest(v interface{}, req *http.Request) error {
 	return json.NewDecoder(resp.Body).Decode(v)
 }
 
-func (j *JenkinsApi) FetchJobList() (*JenkinsApiJobListResponse, error) {
-	resp := new(JenkinsApiJobListResponse)
+func (j *Api) FetchJobList() (*ApiJobListResponse, error) {
+	resp := new(ApiJobListResponse)
 
 	err := j.Get(resp, "/api/json?pretty=true&tree=jobs[name,property[parameterDefinitions[name,defaultParameterValue[value]]]]")
 	return resp, err
