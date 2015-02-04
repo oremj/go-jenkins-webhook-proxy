@@ -24,17 +24,19 @@ func NewApi(username, password, baseUrl string) *Api {
 }
 
 type ApiJobListResponse struct {
-	Jobs []struct {
-		Name     string `json:"name"`
-		Property []struct {
-			Parameters []struct {
-				Name     string `json:"name"`
-				Defaults struct {
-					Value string `json:"value"`
-				} `json:"defaultParameterValue"`
-			} `json:"parameterDefinitions"`
-		} `json:"property"`
-	}
+	Jobs []ApiJobs
+}
+
+type ApiJobs struct {
+	Name     string `json:"name"`
+	Property []struct {
+		Parameters []struct {
+			Name     string `json:"name"`
+			Defaults struct {
+				Value string `json:"value"`
+			} `json:"defaultParameterValue"`
+		} `json:"parameterDefinitions"`
+	} `json:"property"`
 }
 
 func (j *Api) BuildURL(path string) string {
@@ -79,4 +81,18 @@ func (j *Api) FetchJobList() (*ApiJobListResponse, error) {
 
 	err := j.Get(resp, "/api/json?pretty=true&tree=jobs[name,property[parameterDefinitions[name,defaultParameterValue[value]]]]")
 	return resp, err
+}
+
+func (j *ApiJobListResponse) FilterByProperty(name, value string) []ApiJobs {
+	jobs := make([]ApiJobs, 0)
+	for _, job := range j.Jobs {
+		for _, prop := range job.Property {
+			for _, param := range prop.Parameters {
+				if param.Name == name && param.Defaults.Value == value {
+					jobs = append(jobs, job)
+				}
+			}
+		}
+	}
+	return jobs
 }
