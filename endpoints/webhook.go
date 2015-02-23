@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/oremj/go-jenkins-api"
 	"github.com/oremj/go-jenkins-webhook-proxy/github"
-	"github.com/oremj/go-jenkins-webhook-proxy/jenkins"
 )
 
 type WebhookHandler struct {

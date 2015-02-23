@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/oremj/go-jenkins-api"
 	"github.com/oremj/go-jenkins-webhook-proxy/endpoints"
-	"github.com/oremj/go-jenkins-webhook-proxy/jenkins"
 )
 
 var jenkinsUserName = flag.String("jenkins-user", "", "Jenkins Username")
