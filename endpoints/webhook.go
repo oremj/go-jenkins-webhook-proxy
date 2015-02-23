@@ -33,13 +33,15 @@ func (h *WebhookHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	jobs := jobList.FilterByProperty("UpdateOnTag", payload.Repository.FullName)
+	jobs := jobList.FilterByPropertyFunc(func(key, val string) bool {
+		return strings.HasSuffix(key, "UpdateOnTag") && strings.HasPrefix(val, payload.Repository.FullName)
+	})
 
 	for _, j := range jobs {
 		// TODO: build these jobs
 		println("Update: ", j.Name)
-		println("Tag: ", strings.TrimPrefix(payload.Ref, "refs/tags/"))
-		println("PuppetGitRef: ", "origin/master")
-		println("SvcopRef: ", "origin/master")
+		println("Tag: ", payload.Ref)
+		println("PuppetGitRef: ", "refs/heads/master")
+		println("SvcopRef: ", "refs/heads/master")
 	}
 }
