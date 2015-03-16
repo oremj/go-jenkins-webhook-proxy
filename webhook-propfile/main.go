@@ -13,10 +13,15 @@ import (
 var webhookData = flag.String("data", "", "full webhook json blob")
 var startPrefix = "WEBHOOK_"
 
+func escape(src string) string {
+	replacer := strings.NewReplacer("\n", "\\\n", "\t", "\\\t", ",", "\\,")
+	return replacer.Replace(src)
+}
+
 func printField(prefix, fieldName string, field reflect.Value) {
 	kind := field.Type().Kind()
 	if kind == reflect.String {
-		fmt.Printf("%s%s=%s\n", prefix, fieldName, field.String())
+		fmt.Printf("%s%s=%s\n", prefix, fieldName, escape(field.String()))
 		return
 	}
 
