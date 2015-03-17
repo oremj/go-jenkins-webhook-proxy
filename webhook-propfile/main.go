@@ -20,6 +20,7 @@ func escape(src string) string {
 
 func printField(prefix, fieldName string, field reflect.Value) {
 	kind := field.Type().Kind()
+
 	if kind == reflect.String {
 		fmt.Printf("%s%s=%s\n", prefix, fieldName, escape(field.String()))
 		return
@@ -33,9 +34,25 @@ func printField(prefix, fieldName string, field reflect.Value) {
 		return
 	}
 
+	if kind == reflect.Slice {
+		printSlice(prefix+fieldName+"_", field)
+	}
+
 	if kind == reflect.Struct {
 		printStruct(prefix+fieldName+"_", field)
 		return
+	}
+}
+
+func printSlice(prefix string, s reflect.Value) {
+	if s.Len() == 0 {
+		return
+	}
+
+	fmt.Printf("%sLEN=%d\n", prefix, s.Len())
+	for i := 0; i < s.Len(); i++ {
+		elm := s.Index(i)
+		printField(prefix, fmt.Sprintf("%d", i), elm)
 	}
 }
 
